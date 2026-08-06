@@ -3,6 +3,7 @@ package com.example.meuTreino.model;
 import jakarta.persistence.*;
 
 @Entity
+@Table(name="treino_exercicio")
 public class TreinoExercicio {
     @Id
     @GeneratedValue(strategy=GenerationType.IDENTITY)
