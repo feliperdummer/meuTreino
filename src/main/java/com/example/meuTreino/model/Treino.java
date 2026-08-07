@@ -1,6 +1,7 @@
 package com.example.meuTreino.model;
 
 import jakarta.persistence.*;
+import org.jspecify.annotations.NonNull;
 
 import java.time.LocalDate;
 import java.time.LocalTime;

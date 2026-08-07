@@ -9,9 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface TreinoRepository extends JpaRepository<Treino, Long> {
-    public Optional<Treino> findById(Long id);
+    public List<Treino> findAllByUsuario(Usuario usuario);
 
-    public List<Treino> findByUsuario(Usuario usuario);
-
-    public List<Treino> findByData(LocalDate data);
+    public List<Treino> findAllByData(LocalDate data);
 }
