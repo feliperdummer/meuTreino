@@ -2,6 +2,7 @@ package com.example.meuTreino.service;
 
 import com.example.meuTreino.model.Treino;
 import com.example.meuTreino.model.Usuario;
+import com.example.meuTreino.model.dto.TreinoDTO;
 import com.example.meuTreino.repository.ExercicioRepository;
 import com.example.meuTreino.repository.TreinoRepository;
 import com.example.meuTreino.repository.UsuarioRepository;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class TreinoService {
@@ -37,22 +39,23 @@ public class TreinoService {
         return treinoRepo.save(treino);
     }
 
-    public boolean excluir(Treino treino) {
+    public void excluir(Treino treino) {
         treinoRepo.delete(treino);
-        return true;
     }
 
-    public List<Treino> listarPorUsuario(Usuario usuario) {
+    public List<TreinoDTO> listarPorUsuario(Usuario usuario) {
         return treinoRepo.findAllByUsuario(usuario);
     }
 
-    public List<Treino> listarPorData(LocalDate data) {
-        return treinoRepo.findAllByData(data);
+    public List<TreinoDTO> listarPorUsuarioEData(Usuario usuario, LocalDate data) {
+        return treinoRepo.findAllByUsuarioAndData(usuario, data);
+    }
+
+    public Optional<Treino> encontrePeloId(Long treinoId) {
+        return treinoRepo.findById(treinoId);
     }
 
     private boolean isInvalid(Treino treino) {
-        return treino.getUsuario() == null || !userRepo.existsById(treino.getUsuario().getUserId())
-                || treino.getData() == null || treino.getData().isBefore(LocalDate.now())
-                || treino.getHorario() == null || treino.getHorario().isBefore(LocalTime.now());
+        return treino.getUsuario() == null || !userRepo.existsById(treino.getUsuario().getUserId());
     }
 }

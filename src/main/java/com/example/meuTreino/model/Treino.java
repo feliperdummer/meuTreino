@@ -1,7 +1,6 @@
 package com.example.meuTreino.model;
 
 import jakarta.persistence.*;
-import org.jspecify.annotations.NonNull;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -18,15 +17,17 @@ public class Treino {
     private Usuario usuario;
 
     private LocalDate data;
-    private LocalTime horario;
+    private LocalTime start;
+    private LocalTime end;
 
     public Treino() {}
 
-    public Treino(Long treinoId, Usuario usuario, LocalDate data, LocalTime horario) {
+    public Treino(Long treinoId, Usuario usuario, LocalDate data, LocalTime start, LocalTime end) {
         this.treinoId = treinoId;
         this.usuario = usuario;
         this.data = data;
-        this.horario = horario;
+        this.start = start;
+        this.end = end;
     }
 
     public Long getTreinoId() {
@@ -53,11 +54,15 @@ public class Treino {
         this.data = data;
     }
 
-    public LocalTime getHorario() {
-        return horario;
+    public LocalTime getStart() {
+        return start;
     }
 
-    public void setHorario(LocalTime horario) {
-        this.horario = horario;
+    public void setStart(LocalTime start) {
+        this.start = start;
     }
+
+    public LocalTime getEnd() { return end; }
+
+    public void setEnd(LocalTime end) { this.end = end; }
 }

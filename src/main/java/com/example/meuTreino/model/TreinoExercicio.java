@@ -17,15 +17,15 @@ public class TreinoExercicio {
     @JoinColumn(name="exerc_id")
     private Exercicio exercicio;
 
-    private Boolean aquecimento;
-    private Integer numeroSerie;
-    private Integer carga;
-    private Integer quantReps;
+    private boolean aquecimento;
+    private int numeroSerie;
+    private int carga;
+    private int quantReps;
 
     public TreinoExercicio() {}
 
-    public TreinoExercicio(Long trExId, Treino treino, Exercicio exercicio, Boolean aquecimento,
-                           Integer numeroSerie, Integer carga, Integer quantReps)
+    public TreinoExercicio(Long trExId, Treino treino, Exercicio exercicio, boolean aquecimento,
+                           int numeroSerie, int carga, int quantReps)
     {
         this.trExId = trExId;
         this.treino = treino;
@@ -60,35 +60,35 @@ public class TreinoExercicio {
         this.exercicio = exercicio;
     }
 
-    public Integer getCarga() {
+    public int getCarga() {
         return carga;
     }
 
-    public void setCarga(Integer carga) {
+    public void setCarga(int carga) {
         this.carga = carga;
     }
 
-    public Boolean getAquecimento() {
+    public boolean getAquecimento() {
         return aquecimento;
     }
 
-    public void setAquecimento(Boolean aquecimento) {
+    public void setAquecimento(boolean aquecimento) {
         this.aquecimento = aquecimento;
     }
 
-    public Integer getNumeroSerie() {
+    public int getNumeroSerie() {
         return numeroSerie;
     }
 
-    public void setNumeroSerie(Integer numeroSerie) {
+    public void setNumeroSerie(int numeroSerie) {
         this.numeroSerie = numeroSerie;
     }
 
-    public Integer getQuantReps() {
+    public int getQuantReps() {
         return quantReps;
     }
 
-    public void setQuantReps(Integer quantReps) {
+    public void setQuantReps(int quantReps) {
         this.quantReps = quantReps;
     }
 }
