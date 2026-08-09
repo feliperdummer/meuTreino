@@ -3,9 +3,9 @@ package com.example.meuTreino.controller;
 import com.example.meuTreino.model.Treino;
 import com.example.meuTreino.model.dto.TreinoDTO;
 import com.example.meuTreino.model.dto.TreinoExercicioDTO;
+import com.example.meuTreino.service.AuthService;
 import com.example.meuTreino.service.TreinoExercicioService;
 import com.example.meuTreino.service.TreinoService;
-import com.example.meuTreino.service.UsuarioService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,28 +17,28 @@ import java.util.List;
 public class TreinoController {
     private final TreinoService treinoService;
     private final TreinoExercicioService trExService;
-    private final UsuarioService userService;
+    private final AuthService authService;
 
     public TreinoController(TreinoService treinoService, TreinoExercicioService trExService,
-                            UsuarioService userService) {
+                            AuthService authService) {
         this.treinoService = treinoService;
         this.trExService = trExService;
-        this.userService = userService;
+        this.authService = authService;
     }
 
     @PostMapping("/new")
-    public ResponseEntity<Long> salvar(@RequestBody Long userId, @RequestBody Treino treino) {
-        treino.setUsuario(userService.encontrePeloId(userId).orElse(null));
+    public ResponseEntity<?> salvar(@RequestBody Long userId, @RequestBody Treino treino) {
+        treino.setUsuario(authService.encontrePeloId(userId).orElse(null));
         Treino novoTreino = treinoService.salvar(treino);
         if (novoTreino==null) {
             return ResponseEntity.badRequest().build();
         }
-        return ResponseEntity.status(201).body(novoTreino.getTreinoId());
+        return ResponseEntity.status(201).body(new TreinoDTO(novoTreino));
     }
 
     @PutMapping("/edit")
     public ResponseEntity<?> editar(@RequestBody Long userId, @RequestBody Treino treino) {
-        treino.setUsuario(userService.encontrePeloId(userId).orElse(null));
+        treino.setUsuario(authService.encontrePeloId(userId).orElse(null));
         Treino novoTreino = treinoService.salvar(treino);
         if (novoTreino==null) {
             return ResponseEntity.badRequest().build();
@@ -48,7 +48,7 @@ public class TreinoController {
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> excluir(@RequestBody Long userId, @RequestBody Treino treino) {
-        treino.setUsuario(userService.encontrePeloId(userId).orElse(null));
+        treino.setUsuario(authService.encontrePeloId(userId).orElse(null));
         treinoService.excluir(treino);
         return ResponseEntity.ok().build();
     }
@@ -59,11 +59,12 @@ public class TreinoController {
     {
         List<TreinoDTO> returnList;
         if (data==null) {
-            returnList = treinoService.listarPorUsuario(userService.encontrePeloId(userId).orElse(null));
+            returnList = treinoService.listarPorUsuario(
+                    authService.encontrePeloId(userId).orElse(null));
         }
         else {
-            returnList = treinoService.listarPorUsuarioEData(userService.encontrePeloId(userId).orElse(null),
-                    data);
+            returnList = treinoService.listarPorUsuarioEData(
+                    authService.encontrePeloId(userId).orElse(null), data);
         }
         return ResponseEntity.status(200).body(returnList);
     }

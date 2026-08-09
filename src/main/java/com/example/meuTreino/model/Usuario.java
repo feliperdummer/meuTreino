@@ -12,6 +12,7 @@ public class Usuario {
     private Long userId;
 
     private String nome;
+    @Column(unique = true)
     private String email;
     private String senha;
     private LocalDate dataNasc;
