@@ -1,7 +1,7 @@
 package com.example.meuTreino.model.dto;
 
-import com.example.meuTreino.model.Exercicio;
-import com.example.meuTreino.model.TreinoExercicio;
+import com.example.meuTreino.model.entidade.Exercicio;
+import com.example.meuTreino.model.entidade.TreinoExercicio;
 
 public class TreinoExercicioDTO {
     private Long trExId;

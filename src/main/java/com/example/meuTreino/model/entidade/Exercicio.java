@@ -1,4 +1,4 @@
-package com.example.meuTreino.model;
+package com.example.meuTreino.model.entidade;
 
 import jakarta.persistence.*;
 
@@ -10,6 +10,8 @@ public class Exercicio {
     private Long exercId;
 
     private String nome;
+
+    @Column(name="musculo_alvo", nullable = false)
     private String musculoAlvo;
 
     public Exercicio() {}

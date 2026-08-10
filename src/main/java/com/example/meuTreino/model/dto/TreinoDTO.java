@@ -1,8 +1,6 @@
 package com.example.meuTreino.model.dto;
 
-import com.example.meuTreino.model.Treino;
-import com.example.meuTreino.model.Usuario;
-import com.example.meuTreino.repository.TreinoRepository;
+import com.example.meuTreino.model.entidade.Treino;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
@@ -11,8 +9,8 @@ public class TreinoDTO {
     private Long treinoId;
     private UsuarioDTO usuario;
     private LocalDate data;
-    private LocalTime start;
-    private LocalTime end;
+    private LocalTime startTime;
+    private LocalTime endTime;
 
     public TreinoDTO() {}
 
@@ -20,8 +18,8 @@ public class TreinoDTO {
         this.treinoId = treino.getTreinoId();
         this.usuario = new UsuarioDTO(treino.getUsuario());
         this.data = treino.getData();
-        this.start = treino.getStart();
-        this.end = treino.getEnd();
+        this.startTime = treino.getStartTime();
+        this.endTime = treino.getEndTime();
     }
 
     public Long getTreinoId() {
@@ -48,19 +46,19 @@ public class TreinoDTO {
         this.data = data;
     }
 
-    public LocalTime getStart() {
-        return start;
+    public LocalTime getStartTim() {
+        return startTime;
     }
 
     public void setStart(LocalTime start) {
-        this.start = start;
+        this.startTime = start;
     }
 
     public LocalTime getEnd() {
-        return end;
+        return endTime;
     }
 
     public void setEnd(LocalTime end) {
-        this.end = end;
+        this.endTime = end;
     }
 }

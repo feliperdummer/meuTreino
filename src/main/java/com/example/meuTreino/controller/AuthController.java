@@ -1,9 +1,9 @@
 package com.example.meuTreino.controller;
 
-import com.example.meuTreino.model.Usuario;
+import com.example.meuTreino.model.dto.LoginUsuarioDTO;
+import com.example.meuTreino.model.entidade.Usuario;
 import com.example.meuTreino.model.dto.UsuarioDTO;
 import com.example.meuTreino.service.AuthService;
-import org.apache.coyote.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -17,8 +17,13 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody Usuario usuario) {
-        return null;
+    public ResponseEntity<?> login(@RequestBody LoginUsuarioDTO usuario)
+    {
+        String jwtToken = authService.login(usuario.email(), usuario.senha());
+        if (jwtToken==null) {
+            return ResponseEntity.badRequest().body("email ou senha inválidos");
+        }
+        return ResponseEntity.status(200).body(jwtToken);
     }
 
     @PostMapping("/cadastro")
@@ -28,10 +33,5 @@ public class AuthController {
             return ResponseEntity.badRequest().body("Dados inválidos");
         }
         return ResponseEntity.status(201).body(new UsuarioDTO(novoUsuario));
-    }
-
-    @PutMapping("/editar")
-    public ResponseEntity<?> editar(@RequestBody Usuario usuario) {
-        return null;
     }
 }

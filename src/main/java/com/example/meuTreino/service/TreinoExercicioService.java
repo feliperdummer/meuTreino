@@ -1,20 +1,18 @@
 package com.example.meuTreino.service;
 
-import com.example.meuTreino.model.Treino;
-import com.example.meuTreino.model.TreinoExercicio;
+import com.example.meuTreino.model.entidade.Treino;
+import com.example.meuTreino.model.entidade.TreinoExercicio;
 import com.example.meuTreino.model.dto.TreinoExercicioDTO;
 import com.example.meuTreino.repository.TreinoExercicioRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class TreinoExercicioService {
-    private final TreinoExercicioRepository trExRepo;
-
-    public TreinoExercicioService(TreinoExercicioRepository trExRepo) {
-        this.trExRepo = trExRepo;
-    }
+    @Autowired
+    private  TreinoExercicioRepository trExRepo;
 
     public TreinoExercicio salvar(TreinoExercicio trEx) {
         if (isInvalid(trEx)) {

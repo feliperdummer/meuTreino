@@ -1,6 +1,6 @@
 package com.example.meuTreino.model.dto;
 
-import com.example.meuTreino.model.Usuario;
+import com.example.meuTreino.model.entidade.Usuario;
 
 public class UsuarioDTO {
     private Long userId;

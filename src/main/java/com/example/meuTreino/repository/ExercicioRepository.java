@@ -1,6 +1,6 @@
 package com.example.meuTreino.repository;
 
-import com.example.meuTreino.model.Exercicio;
+import com.example.meuTreino.model.entidade.Exercicio;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;

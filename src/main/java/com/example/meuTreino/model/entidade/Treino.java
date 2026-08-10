@@ -1,4 +1,4 @@
-package com.example.meuTreino.model;
+package com.example.meuTreino.model.entidade;
 
 import jakarta.persistence.*;
 
@@ -17,17 +17,21 @@ public class Treino {
     private Usuario usuario;
 
     private LocalDate data;
-    private LocalTime start;
-    private LocalTime end;
+
+    @Column(name="start_time")
+    private LocalTime startTime;
+
+    @Column(name="end_time")
+    private LocalTime endTime;
 
     public Treino() {}
 
-    public Treino(Long treinoId, Usuario usuario, LocalDate data, LocalTime start, LocalTime end) {
+    public Treino(Long treinoId, Usuario usuario, LocalDate data, LocalTime start, LocalTime endTime) {
         this.treinoId = treinoId;
         this.usuario = usuario;
         this.data = data;
-        this.start = start;
-        this.end = end;
+        this.startTime = start;
+        this.endTime = endTime;
     }
 
     public Long getTreinoId() {
@@ -54,15 +58,15 @@ public class Treino {
         this.data = data;
     }
 
-    public LocalTime getStart() {
-        return start;
+    public LocalTime getStartTime() {
+        return startTime;
     }
 
-    public void setStart(LocalTime start) {
-        this.start = start;
+    public void setStart(LocalTime startTime) {
+        this.startTime = startTime;
     }
 
-    public LocalTime getEnd() { return end; }
+    public LocalTime getEndTime() { return endTime; }
 
-    public void setEnd(LocalTime end) { this.end = end; }
+    public void setEndTime(LocalTime endTime) { this.endTime = endTime; }
 }

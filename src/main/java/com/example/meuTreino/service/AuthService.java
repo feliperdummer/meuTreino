@@ -1,39 +1,69 @@
 package com.example.meuTreino.service;
 
-import com.example.meuTreino.model.Usuario;
+import com.example.meuTreino.model.cargos.NomesCargos;
+import com.example.meuTreino.model.entidade.Cargo;
+import com.example.meuTreino.model.entidade.Usuario;
 import com.example.meuTreino.repository.UsuarioRepository;
+import com.example.meuTreino.security.SecurityConfiguration;
+import com.example.meuTreino.security.userDetails.UserDetailsImpl;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
 public class AuthService {
-    private final UsuarioRepository userRepo;
+    @Autowired
+    private  UsuarioRepository userRepo;
 
-    public AuthService(UsuarioRepository userRepo) {
-        this.userRepo = userRepo;
-    }
+    @Autowired
+    private SecurityConfiguration securityConfiguration;
 
-    public Usuario login(Usuario usuario) {
-        Usuario usuarioExistente = userRepo.findByEmail(usuario.getEmail());
-        if (usuarioExistente==null) { return null; }
-        return new BCryptPasswordEncoder().
-                matches(usuario.getSenha(), usuarioExistente.getSenha())
-                    ? usuarioExistente : null;
+    @Autowired
+    private AuthenticationManager authManager;
+
+    @Autowired
+    private JwtTokenService jwtTokenService;
+
+    public String login(String email, String senha) {
+        if (!userRepo.existsByEmail(email)) {
+            return null;
+        }
+        UsernamePasswordAuthenticationToken userPassAuthToken =
+                new UsernamePasswordAuthenticationToken(email, senha);
+        Authentication auth;
+        try {
+            auth = authManager.authenticate(userPassAuthToken);
+        } catch (Exception e) {
+            return null;
+        }
+        UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
+        if (userDetails==null) {
+            return null;
+        }
+        return jwtTokenService.generateToken(userDetails);
     }
 
     public Usuario cadastro(Usuario usuario) {
         if (usuario==null ||
             nomeIsInvalid(usuario.getNome()) ||
             emailIsInvalid(usuario.getEmail()) ||
-            senhaIsInvalid(usuario.getSenha()))
+            senhaIsInvalid(usuario.getSenha()) ||
+            userRepo.existsByEmail(usuario.getEmail()))
         {
             return null;
         }
         usuario.setSenha(
-                new BCryptPasswordEncoder().
-                        encode(usuario.getSenha())
+                securityConfiguration.
+                        passwordEncoder().encode(usuario.getSenha())
+        );
+        usuario.setCargo(
+                List.of(new Cargo(null, NomesCargos.CARGO_USER))
         );
         return userRepo.save(usuario);
     }
@@ -53,8 +83,7 @@ public class AuthService {
 
     private boolean emailIsInvalid(String email) {
         return email==null || email.isBlank() ||
-                !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$") ||
-                    userRepo.existsByEmail(email);
+                !email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$");
     }
 
     /*

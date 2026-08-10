@@ -1,4 +1,4 @@
-package com.example.meuTreino.model;
+package com.example.meuTreino.model.entidade;
 
 import jakarta.persistence.*;
 
@@ -18,8 +18,12 @@ public class TreinoExercicio {
     private Exercicio exercicio;
 
     private boolean aquecimento;
+
+    @Column(name="numero_serie")
     private int numeroSerie;
     private int carga;
+
+    @Column(name="quant_reps")
     private int quantReps;
 
     public TreinoExercicio() {}

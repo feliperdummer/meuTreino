@@ -1,8 +1,9 @@
-package com.example.meuTreino.model;
+package com.example.meuTreino.model.entidade;
 
 import jakarta.persistence.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Table(name="usuario")
@@ -11,10 +12,21 @@ public class Usuario {
     @GeneratedValue(strategy= GenerationType.IDENTITY)
     private Long userId;
 
-    private String nome;
-    @Column(unique = true)
+    @Column(unique = true, nullable = false)
     private String email;
+
+    @ManyToMany(fetch=FetchType.EAGER, cascade=CascadeType.PERSIST)
+    @JoinTable(name="cargos",
+    joinColumns = @JoinColumn(name="user_id"),
+    inverseJoinColumns = @JoinColumn(name="cargo_id"))
+    private List<Cargo> cargos;
+
+    @Column(nullable = false)
+    private String nome;
+    @Column(nullable = false)
     private String senha;
+
+    @Column(name="data_nasc", nullable = false)
     private LocalDate dataNasc;
 
     public Usuario() {}
@@ -51,6 +63,14 @@ public class Usuario {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<Cargo> getCargos() {
+        return cargos;
+    }
+
+    public void setCargo(List<Cargo> cargos) {
+        this.cargos = cargos;
     }
 
     public String getSenha() {
