@@ -1,12 +1,17 @@
 package com.example.meuTreino.controller;
 
+import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.example.meuTreino.model.entidade.Treino;
 import com.example.meuTreino.model.entidade.Usuario;
 import com.example.meuTreino.model.dto.TreinoDTO;
 import com.example.meuTreino.model.dto.TreinoExercicioDTO;
+import com.example.meuTreino.model.exception.AuthorizationException;
+import com.example.meuTreino.model.exception.TreinoNotFoundException;
+import com.example.meuTreino.model.exception.UserNotFoundException;
 import com.example.meuTreino.service.AuthService;
 import com.example.meuTreino.service.TreinoExercicioService;
 import com.example.meuTreino.service.TreinoService;
+import org.apache.catalina.User;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -21,8 +26,10 @@ public class TreinoController {
     private final TreinoExercicioService trExService;
     private final AuthService authService;
 
-    public TreinoController(TreinoService treinoService, TreinoExercicioService trExService,
-                            AuthService authService) {
+    public TreinoController(TreinoService treinoService,
+                            TreinoExercicioService trExService,
+                            AuthService authService)
+    {
         this.treinoService = treinoService;
         this.trExService = trExService;
         this.authService = authService;
@@ -30,57 +37,91 @@ public class TreinoController {
 
     @PostMapping("/new")
     public ResponseEntity<?> criarTreino(@RequestHeader("Authorization") String jwtToken) {
-        TreinoDTO treino = treinoService.criarTreino(jwtToken);
-        if (treino==null) {
-            return ResponseEntity.badRequest().build();
+        TreinoDTO treino;
+        try {
+            treino = treinoService.criarTreino(jwtToken);
+        }
+        catch (JWTVerificationException jve) {
+            return ResponseEntity.status(401).build();
+        }
+        catch (UserNotFoundException e) {
+            return ResponseEntity.status(404).build();
         }
         return ResponseEntity.status(201).body(treino);
     }
 
-    // vulneravel, arrumar, tirar qualquer tipo de dado sensivel do corpo da requisicao
-    @PutMapping("/edit")
-    public ResponseEntity<?> editar(@RequestBody Long userId, @RequestBody Treino treino) {
-        treino.setUsuario(authService.encontrePeloId(userId).orElse(null));
-        Treino novoTreino = treinoService.editar(treino);
-        if (novoTreino==null) {
-            return ResponseEntity.badRequest().build();
+    @PatchMapping("/{treinoId}/finalizar")
+    public ResponseEntity<?> finalizarTreino(@RequestHeader("Authorization") String jwtToken,
+                                             @PathVariable Long treinoId)
+    {
+        try {
+            treinoService.finalizarTreino(jwtToken, treinoId);
         }
-        return ResponseEntity.status(200).build();
-    }
-
-    // vulneravel, arrumar, tirar qualquer tipo de dado sensivel do corpo da requisicao
-    @DeleteMapping("/delete")
-    public ResponseEntity<?> excluir(@RequestBody Long userId, @RequestBody Treino treino) {
-        treino.setUsuario(authService.encontrePeloId(userId).orElse(null));
-        treinoService.excluir(treino);
+        catch (JWTVerificationException jve) {
+            return ResponseEntity.status(401).build();
+        }
+        catch (AuthorizationException ae) {
+            return ResponseEntity.status(403).build();
+        }
+        catch (UserNotFoundException | TreinoNotFoundException e) {
+            return ResponseEntity.status(404).build();
+        }
         return ResponseEntity.ok().build();
     }
 
-    // vulneravel, arrumar, tirar qualquer tipo de dado sensivel do corpo da requisicao
+    @DeleteMapping("{treinoId}/delete")
+    public ResponseEntity<?> excluir(@RequestHeader("Authorization") String jwtToken,
+                                     @PathVariable Long treinoId)
+    {
+        try {
+            treinoService.deletarTreino(jwtToken, treinoId);
+        }
+        catch (JWTVerificationException jve) {
+            return ResponseEntity.status(401).build();
+        }
+        catch (AuthorizationException ae) {
+            return ResponseEntity.status(403).build();
+        }
+        catch (UserNotFoundException | TreinoNotFoundException e) {
+            return ResponseEntity.status(404).build();
+        }
+        return ResponseEntity.ok().build();
+    }
+
     @GetMapping("/listar/{userId}")
-    public ResponseEntity<List<TreinoDTO>> listar(@PathVariable Long userId,
+    public ResponseEntity<List<TreinoDTO>> listar(@RequestHeader("Authorization") String jwtToken,
                                                   @RequestParam(value="data", required=false) LocalDate data)
     {
         List<TreinoDTO> returnList;
-        if (data==null) {
-            returnList = treinoService.listarPorUsuario(
-                    authService.encontrePeloId(userId).orElse(null));
+        try {
+            returnList = treinoService.listarTreinos(jwtToken, data);
         }
-        else {
-            returnList = treinoService.listarPorUsuarioEData(
-                    authService.encontrePeloId(userId).orElse(null), data);
+        catch (JWTVerificationException jve) {
+            return ResponseEntity.status(401).build();
+        }
+        catch (UserNotFoundException ue) {
+            return ResponseEntity.status(404).build();
         }
         return ResponseEntity.status(200).body(returnList);
     }
 
-    // vulneravel, arrumar, tirar qualquer tipo de dado sensivel do corpo da requisicao
-    @GetMapping("detail/{treinoId}")
-    public ResponseEntity<List<TreinoExercicioDTO>> detalhar(@PathVariable Long treinoId) {
-        Treino treino = treinoService.encontrePeloId(treinoId).orElse(null);
-        if (treino==null) {
-            return ResponseEntity.badRequest().build();
+    @GetMapping("{treinoId}/detail")
+    public ResponseEntity<List<TreinoExercicioDTO>> detalhar(@RequestHeader("Authorization") String jwtToken,
+                                                             @PathVariable Long treinoId)
+    {
+        List<TreinoExercicioDTO> exerciciosList;
+        try {
+            exerciciosList = treinoService.detalharTreino(jwtToken, treinoId);
         }
-        List<TreinoExercicioDTO> detalhes = trExService.encontrePeloTreino(treino);
-        return ResponseEntity.status(200).body(detalhes);
+        catch (JWTVerificationException jve) {
+            return ResponseEntity.status(401).build();
+        }
+        catch (AuthorizationException ae) {
+            return ResponseEntity.status(403).build();
+        }
+        catch (UserNotFoundException | TreinoNotFoundException e) {
+            return ResponseEntity.status(404).build();
+        }
+        return ResponseEntity.status(200).body(exerciciosList);
     }
 }

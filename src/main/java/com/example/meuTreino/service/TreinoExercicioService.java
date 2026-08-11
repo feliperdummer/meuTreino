@@ -32,10 +32,6 @@ public class TreinoExercicioService {
         trExRepo.delete(trEx);
     }
 
-    public List<TreinoExercicioDTO> encontrePeloTreino(Treino treino) {
-        return trExRepo.findAllByTreinoOrderByTrExId(treino);
-    }
-
     private boolean isInvalid(TreinoExercicio trEx) {
         return trEx.getTreino()==null || trEx.getExercicio()==null ||
                 trEx.getCarga() < 0 || trEx.getCarga() > 1000 ||

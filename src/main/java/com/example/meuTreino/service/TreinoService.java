@@ -1,53 +1,55 @@
 package com.example.meuTreino.service;
 
+import com.auth0.jwt.JWT;
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.meuTreino.model.dto.TreinoExercicioDTO;
 import com.example.meuTreino.model.entidade.Treino;
 import com.example.meuTreino.model.entidade.Usuario;
 import com.example.meuTreino.model.dto.TreinoDTO;
+import com.example.meuTreino.model.exception.AuthorizationException;
+import com.example.meuTreino.model.exception.TreinoNotFoundException;
+import com.example.meuTreino.model.exception.UserNotFoundException;
 import com.example.meuTreino.repository.ExercicioRepository;
+import com.example.meuTreino.repository.TreinoExercicioRepository;
 import com.example.meuTreino.repository.TreinoRepository;
 import com.example.meuTreino.repository.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authorization.AuthorizationDeniedException;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 @Service
 public class TreinoService {
-    @Autowired
     private final UsuarioRepository userRepo;
-    @Autowired
     private final ExercicioRepository exRepo;
-    @Autowired
     private final TreinoRepository treinoRepo;
-    @Autowired
+    private final TreinoExercicioRepository trExRepo;
     private final JwtTokenService jwtTokenService;
 
-    public TreinoService(UsuarioRepository userRepo, ExercicioRepository exRepo, TreinoRepository treinoRepo,
-                        JwtTokenService jwtTokenService)
+    public TreinoService(UsuarioRepository userRepo, ExercicioRepository exRepo,
+                         TreinoRepository treinoRepo, TreinoExercicioRepository trExRepo,
+                         JwtTokenService jwtTokenService)
     {
         this.userRepo = userRepo;
         this.exRepo = exRepo;
         this.treinoRepo = treinoRepo;
+        this.trExRepo = trExRepo;
         this.jwtTokenService = jwtTokenService;
     }
 
-    public TreinoDTO criarTreino(String token) {
-        String subject;
-        try {
-            subject = jwtTokenService.getSubjectFromToken(
-                    jwtTokenService.stripeToken(token));
-        } catch (JWTVerificationException e) {
-            return null;
-        }
-        Usuario usuario = userRepo.findByEmail(subject).orElse(null);
-        if (usuario==null) {
-            return null;
-        }
+    public TreinoDTO criarTreino(String token) throws JWTVerificationException,
+                                                        UserNotFoundException
+    {
+        String subject =jwtTokenService.getSubjectFromToken(
+                jwtTokenService.stripeToken(token));
+        Usuario usuario = userRepo.findByEmail(subject)
+                .orElseThrow(UserNotFoundException::new);
         Treino novoTreino = new Treino(
                 null,
                 usuario,
@@ -58,30 +60,71 @@ public class TreinoService {
         return new TreinoDTO(treinoRepo.save(novoTreino));
     }
 
-    public Treino editar(Treino treino) {
-        if (isInvalid(treino)) {
-            return null;
+    public void finalizarTreino(String token, Long treinoId) throws UserNotFoundException,
+                                                                    TreinoNotFoundException,
+                                                                    JWTVerificationException,
+                                                                    AuthorizationException
+    {
+        String subject = jwtTokenService.getSubjectFromToken(
+                jwtTokenService.stripeToken(token));
+        Usuario usuario = userRepo.findByEmail(subject)
+                .orElseThrow(UserNotFoundException::new);
+        Treino treino = treinoRepo.findById(treinoId)
+                .orElseThrow(TreinoNotFoundException::new);
+        if (treino.getUsuario()!=usuario) {
+            throw new AuthorizationException("");
         }
-        return treinoRepo.save(treino);
+        treino.setEndTime(LocalTime.now(ZoneId.of("America/Sao_Paulo")));
+        treinoRepo.save(treino);
     }
 
-    public void excluir(Treino treino) {
+    public void deletarTreino(String token, Long treinoId) throws JWTVerificationException,
+                                                                  TreinoNotFoundException,
+                                                                  UserNotFoundException,
+                                                                  AuthorizationException
+    {
+        String subject = jwtTokenService.getSubjectFromToken(
+                jwtTokenService.stripeToken(token));
+        Usuario usuario = userRepo.findByEmail(subject)
+                .orElseThrow(UserNotFoundException::new);
+        Treino treino = treinoRepo.findById(treinoId)
+                .orElseThrow(TreinoNotFoundException::new);
+        if (treino.getUsuario()!=usuario) {
+            throw new AuthorizationException("");
+        }
         treinoRepo.delete(treino);
     }
 
-    public List<TreinoDTO> listarPorUsuario(Usuario usuario) {
-        return treinoRepo.findAllByUsuario(usuario);
+    public List<TreinoDTO> listarTreinos(String token, LocalDate data) throws JWTVerificationException,
+                                                                              UserNotFoundException
+    {
+        String subject = jwtTokenService.getSubjectFromToken(
+                jwtTokenService.stripeToken(token));
+        Usuario usuario = userRepo.findByEmail(subject)
+                .orElseThrow(UserNotFoundException::new);
+        if (data==null) {
+            return treinoRepo.findAllByUsuario(usuario);
+        }
+        return treinoRepo.findAllByUsuarioAndData(usuario, data);
     }
 
-    public List<TreinoDTO> listarPorUsuarioEData(Usuario usuario, LocalDate data) {
-        return treinoRepo.findAllByUsuarioAndData(usuario, data);
+    public List<TreinoExercicioDTO> detalharTreino(String token, Long treinoId) throws JWTVerificationException,
+                                                                                         UserNotFoundException,
+                                                                                         TreinoNotFoundException,
+                                                                                         AuthorizationException
+    {
+        String subject = jwtTokenService.getSubjectFromToken(
+                jwtTokenService.stripeToken(token));
+        Usuario usuario = userRepo.findByEmail(subject)
+                .orElseThrow(UserNotFoundException::new);
+        Treino treino = treinoRepo.findById(treinoId).orElseThrow(TreinoNotFoundException::new);
+        if (treino.getUsuario()!=usuario) {
+            throw new AuthorizationException("");
+        }
+        return trExRepo.findAllByTreinoOrderByTrExId(treino);
     }
 
     public Optional<Treino> encontrePeloId(Long treinoId) {
         return treinoRepo.findById(treinoId);
-    }
-
-    private boolean isInvalid(Treino treino) {
-        return treino.getUsuario() == null || !userRepo.existsById(treino.getUsuario().getUserId());
     }
 }

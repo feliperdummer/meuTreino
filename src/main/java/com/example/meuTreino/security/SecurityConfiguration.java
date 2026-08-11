@@ -26,7 +26,7 @@ public class SecurityConfiguration {
             "/api/auth/login"
     };
     public static final String[] AUTHENTICATED_ENDPOINTS = {
-            "/api/treino/new"
+            "/api/treino/**"
     };
 
     @Bean

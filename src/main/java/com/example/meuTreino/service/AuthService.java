@@ -1,8 +1,13 @@
 package com.example.meuTreino.service;
 
+import com.auth0.jwt.exceptions.JWTCreationException;
 import com.example.meuTreino.model.cargos.NomesCargos;
 import com.example.meuTreino.model.entidade.Cargo;
 import com.example.meuTreino.model.entidade.Usuario;
+import com.example.meuTreino.model.exception.ExistingUserException;
+import com.example.meuTreino.model.exception.InvalidCredentialsException;
+import com.example.meuTreino.model.exception.InvalidFieldException;
+import com.example.meuTreino.model.exception.UserNotFoundException;
 import com.example.meuTreino.repository.UsuarioRepository;
 import com.example.meuTreino.security.SecurityConfiguration;
 import com.example.meuTreino.security.userDetails.UserDetailsImpl;
@@ -30,33 +35,38 @@ public class AuthService {
     @Autowired
     private JwtTokenService jwtTokenService;
 
-    public String login(String email, String senha) {
+    public String login(String email, String senha) throws UserNotFoundException,
+                                                           InvalidCredentialsException,
+                                                           JWTCreationException
+    {
         if (!userRepo.existsByEmail(email)) {
-            return null;
+            throw new UserNotFoundException("");
         }
         UsernamePasswordAuthenticationToken userPassAuthToken =
                 new UsernamePasswordAuthenticationToken(email, senha);
         Authentication auth;
         try {
             auth = authManager.authenticate(userPassAuthToken);
-        } catch (Exception e) {
-            return null;
+        }
+        catch (Exception e) {
+            throw new InvalidCredentialsException("");
         }
         UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
-        if (userDetails==null) {
-            return null;
-        }
         return jwtTokenService.generateToken(userDetails);
     }
 
-    public Usuario cadastro(Usuario usuario) {
+    public Usuario cadastro(Usuario usuario) throws ExistingUserException,
+                                                    InvalidFieldException
+    {
         if (usuario==null ||
             nomeIsInvalid(usuario.getNome()) ||
             emailIsInvalid(usuario.getEmail()) ||
-            senhaIsInvalid(usuario.getSenha()) ||
-            userRepo.existsByEmail(usuario.getEmail()))
+            senhaIsInvalid(usuario.getSenha()))
         {
-            return null;
+            throw new InvalidFieldException("");
+        }
+        if (userRepo.existsByEmail(usuario.getEmail())) {
+            throw new ExistingUserException("");
         }
         usuario.setSenha(
                 securityConfiguration.
