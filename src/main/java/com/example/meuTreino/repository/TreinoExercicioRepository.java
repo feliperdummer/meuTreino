@@ -9,7 +9,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 
 public interface TreinoExercicioRepository extends JpaRepository<TreinoExercicio, Long> {
-    public List<TreinoExercicioDTO> findAllByTreinoOrderByTrExId(Treino treino);
+    List<TreinoExercicioDTO> findAllByTreinoOrderByTrExId(Treino treino);
 
-    public List<TreinoExercicio> findByExercicio(Exercicio exercicio);
+    List<TreinoExercicio> findByExercicio(Exercicio exercicio);
 }

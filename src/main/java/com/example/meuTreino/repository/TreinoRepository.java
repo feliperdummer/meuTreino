@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface TreinoRepository extends JpaRepository<Treino, Long> {
-    public List<TreinoDTO> findAllByUsuario(Usuario usuario);
+    List<TreinoDTO> findAllByUsuario(Usuario usuario);
 
-    public List<TreinoDTO> findAllByUsuarioAndData(Usuario usuario, LocalDate data);
+    List<TreinoDTO> findAllByUsuarioAndData(Usuario usuario, LocalDate data);
 }

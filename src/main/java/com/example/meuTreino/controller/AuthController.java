@@ -4,10 +4,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import com.example.meuTreino.model.dto.LoginUsuarioDTO;
 import com.example.meuTreino.model.entidade.Usuario;
 import com.example.meuTreino.model.dto.UsuarioDTO;
-import com.example.meuTreino.model.exception.ExistingUserException;
-import com.example.meuTreino.model.exception.InvalidCredentialsException;
-import com.example.meuTreino.model.exception.InvalidFieldException;
-import com.example.meuTreino.model.exception.UserNotFoundException;
+import com.example.meuTreino.model.exception.*;
 import com.example.meuTreino.service.AuthService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +25,7 @@ public class AuthController {
         try {
             jwtToken = authService.login(usuario.email(), usuario.senha());
         }
-        catch (InvalidCredentialsException | UserNotFoundException e) {
+        catch (InvalidCredentialsException | EntityNotFoundException e) {
             return ResponseEntity.badRequest().body("Credenciais inválidas");
         }
         catch (JWTCreationException jce) {

@@ -5,7 +5,6 @@ import com.example.meuTreino.repository.UsuarioRepository;
 import com.example.meuTreino.security.userDetails.UserDetailsImpl;
 import com.example.meuTreino.service.JwtTokenService;
 import jakarta.servlet.FilterChain;
-import jakarta.servlet.Servlet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

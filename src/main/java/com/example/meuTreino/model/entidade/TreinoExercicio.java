@@ -6,27 +6,28 @@ import jakarta.persistence.*;
 @Table(name="treino_exercicio")
 public class TreinoExercicio {
     @Id
-    @GeneratedValue(strategy=GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long trExId;
 
     @ManyToOne
-    @JoinColumn(name="treino_id")
+    @JoinColumn(name = "treino_id")
     private Treino treino;
 
     @ManyToOne
-    @JoinColumn(name="exerc_id")
+    @JoinColumn(name = "exerc_id")
     private Exercicio exercicio;
 
     private boolean aquecimento;
 
-    @Column(name="numero_serie")
+    @Column(name = "numero_serie")
     private int numeroSerie;
     private int carga;
 
-    @Column(name="quant_reps")
+    @Column(name = "quant_reps")
     private int quantReps;
 
-    public TreinoExercicio() {}
+    public TreinoExercicio() {
+    }
 
     public TreinoExercicio(Long trExId, Treino treino, Exercicio exercicio, boolean aquecimento,
                            int numeroSerie, int carga, int quantReps)
