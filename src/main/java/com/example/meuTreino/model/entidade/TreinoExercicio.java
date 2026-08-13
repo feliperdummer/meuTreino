@@ -1,5 +1,6 @@
 package com.example.meuTreino.model.entidade;
 
+import com.example.meuTreino.model.dto.EditTreinoExercicioDTO;
 import jakarta.persistence.*;
 
 @Entity

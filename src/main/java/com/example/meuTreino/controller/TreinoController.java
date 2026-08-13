@@ -29,7 +29,7 @@ public class TreinoController {
             return ResponseEntity.status(401).build();
         }
         catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.status(201).body(treino);
     }
@@ -48,7 +48,7 @@ public class TreinoController {
             return ResponseEntity.status(403).build();
         }
         catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.ok().build();
     }
@@ -67,13 +67,13 @@ public class TreinoController {
             return ResponseEntity.status(403).build();
         }
         catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/listar/{userId}")
-    public ResponseEntity<List<TreinoDTO>> listar(@RequestHeader("Authorization") String jwtToken,
+    public ResponseEntity<?> listar(@RequestHeader("Authorization") String jwtToken,
                                                   @RequestParam(value="data", required=false) LocalDate data)
     {
         List<TreinoDTO> returnList;
@@ -84,13 +84,13 @@ public class TreinoController {
             return ResponseEntity.status(401).build();
         }
         catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.status(200).body(returnList);
     }
 
     @GetMapping("{treinoId}/detail")
-    public ResponseEntity<List<TreinoExercicioDTO>> detalhar(@RequestHeader("Authorization") String jwtToken,
+    public ResponseEntity<?> detalhar(@RequestHeader("Authorization") String jwtToken,
                                                              @PathVariable Long treinoId)
     {
         List<TreinoExercicioDTO> exerciciosList;
@@ -104,7 +104,7 @@ public class TreinoController {
             return ResponseEntity.status(403).build();
         }
         catch (EntityNotFoundException e) {
-            return ResponseEntity.status(404).build();
+            return ResponseEntity.status(404).body(e.getMessage());
         }
         return ResponseEntity.status(200).body(exerciciosList);
     }

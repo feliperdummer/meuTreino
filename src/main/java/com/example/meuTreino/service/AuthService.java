@@ -42,7 +42,7 @@ public class AuthService {
             auth = authManager.authenticate(userPassAuthToken);
         }
         catch (Exception e) {
-            throw new InvalidCredentialsException("");
+            throw new InvalidCredentialsException("email e/ou senha incorretos");
         }
         UserDetailsImpl userDetails = (UserDetailsImpl) auth.getPrincipal();
         return jwtTokenService.generateToken(userDetails);
@@ -56,10 +56,10 @@ public class AuthService {
             emailIsInvalid(usuario.getEmail()) ||
             senhaIsInvalid(usuario.getSenha()))
         {
-            throw new InvalidFieldException("");
+            throw new InvalidFieldException("campo(s) invalidos");
         }
         if (userRepo.existsByEmail(usuario.getEmail())) {
-            throw new ExistingUserException("");
+            throw new ExistingUserException("ja existe uma conta com este email");
         }
         usuario.setSenha(
                 securityConfiguration.

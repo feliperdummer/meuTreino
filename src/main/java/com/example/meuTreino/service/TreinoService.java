@@ -105,6 +105,6 @@ public class TreinoService {
         if (treino.getUsuario()!=usuario) {
             throw new AuthorizationException("");
         }
-        return trExRepo.findAllByTreinoOrderByTrExId(treino);
+        return trExRepo.findAllByTreinoOrderByTrExIdAscExercicioAsc(treino);
     }
 }

@@ -26,7 +26,7 @@ public class AuthController {
             jwtToken = authService.login(usuario.email(), usuario.senha());
         }
         catch (InvalidCredentialsException | EntityNotFoundException e) {
-            return ResponseEntity.badRequest().body("Credenciais inválidas");
+            return ResponseEntity.status(400).body(e.getMessage());
         }
         catch (JWTCreationException jce) {
             return ResponseEntity.status(500).build();
@@ -40,11 +40,8 @@ public class AuthController {
         try {
             novoUsuario = authService.cadastro(usuario);
         }
-        catch (InvalidFieldException ife) {
-            return ResponseEntity.badRequest().body("Campo(s) inválidos");
-        }
-        catch (ExistingUserException eue) {
-            return ResponseEntity.badRequest().body("Email já cadastrado");
+        catch (InvalidFieldException | ExistingUserException e) {
+            return ResponseEntity.status(400).body(e.getMessage());
         }
         return ResponseEntity.status(201).body(new UsuarioDTO(novoUsuario));
     }

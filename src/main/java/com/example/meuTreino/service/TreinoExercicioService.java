@@ -1,6 +1,7 @@
 package com.example.meuTreino.service;
 
 import com.auth0.jwt.exceptions.JWTVerificationException;
+import com.example.meuTreino.model.dto.EditTreinoExercicioDTO;
 import com.example.meuTreino.model.dto.NovoTreinoExercicioDTO;
 import com.example.meuTreino.model.entidade.Exercicio;
 import com.example.meuTreino.model.entidade.Treino;
@@ -57,7 +58,7 @@ public class TreinoExercicioService {
         return new TreinoExercicioDTO(trExRepo.save(novaSerie));
     }
 
-    public TreinoExercicioDTO editar(String token, TreinoExercicioDTO serie)
+    public TreinoExercicioDTO editar(String token, EditTreinoExercicioDTO serie)
         throws JWTVerificationException, AuthorizationException,
                 InvalidFieldException, EntityNotFoundException
     {
@@ -65,25 +66,36 @@ public class TreinoExercicioService {
 
         String subject = jwtTokenService.getSubjectFromToken(
                 jwtTokenService.stripeToken(token));
-        Treino treino = treinoRepo.findById(serie.getTreinoId())
-                .orElseThrow(() -> new EntityNotFoundException("treino nao encontrado"));
         Usuario usuario = userRepo.findByEmail(subject)
                 .orElseThrow(() -> new EntityNotFoundException("usuario nao encontrado"));
+        Treino treino = treinoRepo.findById(serie.treinoId())
+                .orElseThrow(() -> new EntityNotFoundException("treino nao encontrado"));
         if (treino.getUsuario()!=usuario) { throw new AuthorizationException(""); }
-        TreinoExercicio serieExistente = trExRepo.findById(serie.getTrExId())
+
+        TreinoExercicio serieExistente = trExRepo.findById(serie.trExId())
                 .orElseThrow(() -> new EntityNotFoundException("serie nao encontrada"));
 
-        serieExistente.setExercicio(serie.getExercicio());
-        serieExistente.setAquecimento(serie.isAquecimento());
-        serieExistente.setNumeroSerie(serie.getNumeroSerie());
-        serieExistente.setCarga(serie.getCarga());
-        serieExistente.setQuantReps(serie.getQuantReps());
+        updateTrExIfNotNull(serieExistente, serie);
 
         return new TreinoExercicioDTO(trExRepo.save(serieExistente));
     }
 
-    public void excluir(TreinoExercicio trEx) {
-        return;
+    public void deletarSerie(String token, Long trExId) throws EntityNotFoundException,
+                                                          JWTVerificationException,
+                                                          AuthorizationException
+    {
+        TreinoExercicio serie = trExRepo.findById(trExId)
+                .orElseThrow(() -> new EntityNotFoundException("serie nao encontrada"));
+        Treino treino = treinoRepo.findById(serie.getTreino().getTreinoId())
+                .orElseThrow(() -> new EntityNotFoundException("treino nao encontrado"));
+
+        String subject = jwtTokenService.getSubjectFromToken(
+                jwtTokenService.stripeToken(token));
+        Usuario usuario = userRepo.findByEmail(subject)
+                .orElseThrow(() -> new EntityNotFoundException("usuario nao encontrado"));
+        if (treino.getUsuario()!=usuario) { throw new AuthorizationException(""); }
+
+        trExRepo.delete(serie);
     }
 
     private boolean isInvalid(NovoTreinoExercicioDTO serie) {
@@ -93,11 +105,34 @@ public class TreinoExercicioService {
                 || serie.quantReps() <= 0 || serie.quantReps() > 100;
     }
 
-    private boolean isInvalid(TreinoExercicioDTO serie) {
-        return serie.getTreinoId()==null || serie.getExercicio()==null
-                || serie.getNumeroSerie() <= 0 || serie.getNumeroSerie() > 30
-                || serie.getCarga() < 0 || serie.getCarga() > 1000
-                || serie.getQuantReps() <= 0 || serie.getQuantReps() > 100;
+    private boolean isInvalid(EditTreinoExercicioDTO serie) {
+        return serie.treinoId()==null || serie.trExId()==null
+                || (serie.numeroSerie()!=null && (serie.numeroSerie() <= 0 || serie.numeroSerie() > 30))
+                || (serie.carga()!=null && (serie.carga() < 0 || serie.carga() > 1000))
+                || (serie.quantReps()!=null && (serie.quantReps() <= 0 || serie.quantReps() > 100));
     }
 
+    private void updateTrExIfNotNull(TreinoExercicio serieExistente,
+                                     EditTreinoExercicioDTO serieEditada)
+    {
+        Exercicio novoEx = exRepo.findById(serieEditada.exercId())
+                .orElse(serieExistente.getExercicio());
+        boolean aquecimento = serieEditada.aquecimento()==null
+                ? serieExistente.getAquecimento()
+                : serieEditada.aquecimento();
+        int numeroSerie = serieEditada.numeroSerie()==null
+                ? serieExistente.getNumeroSerie()
+                : serieEditada.numeroSerie();
+        int carga = serieEditada.carga()==null
+                ? serieExistente.getCarga()
+                : serieEditada.carga();
+        int quantReps = serieEditada.quantReps()==null
+                ? serieExistente.getQuantReps()
+                : serieEditada.quantReps();
+        serieExistente.setExercicio(novoEx);
+        serieExistente.setAquecimento(aquecimento);
+        serieExistente.setNumeroSerie(numeroSerie);
+        serieExistente.setCarga(carga);
+        serieExistente.setQuantReps(quantReps);
+    }
 }
