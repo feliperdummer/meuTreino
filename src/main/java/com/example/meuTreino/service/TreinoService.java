@@ -32,10 +32,20 @@ public class TreinoService {
     public TreinoDTO criarTreino(String token) throws JWTVerificationException,
                                                         EntityNotFoundException
     {
-        String subject =jwtTokenService.getSubjectFromToken(
+        String subject = jwtTokenService.getSubjectFromToken(
                 jwtTokenService.stripeToken(token));
         Usuario usuario = userRepo.findByEmail(subject)
                 .orElseThrow(() -> new EntityNotFoundException("usuario nao encontrado"));
+
+        // treino que nao foi concluido
+        Treino ultimoTreino = treinoRepo.findFirstByUsuarioOrderByStartTimeDesc(usuario)
+                .orElse(null);
+        if (ultimoTreino!=null && ultimoTreino.getEndTime()==null) {
+            TreinoDTO dto = new TreinoDTO(ultimoTreino);
+            dto.setExistente(true);
+            return dto;
+        }
+
         Treino novoTreino = new Treino(
                 null,
                 usuario,
@@ -46,7 +56,7 @@ public class TreinoService {
         return new TreinoDTO(treinoRepo.save(novoTreino));
     }
 
-    public void finalizarTreino(String token, Long treinoId) throws JWTVerificationException,
+    public void finalizarTreino(String token) throws JWTVerificationException,
                                                                     AuthorizationException,
                                                                     EntityNotFoundException
     {
@@ -54,13 +64,12 @@ public class TreinoService {
                 jwtTokenService.stripeToken(token));
         Usuario usuario = userRepo.findByEmail(subject)
                 .orElseThrow(() -> new EntityNotFoundException("usuario nao encontrado"));
-        Treino treino = treinoRepo.findById(treinoId)
+        Treino treino = treinoRepo.findFirstByUsuarioOrderByStartTimeDesc(usuario)
                 .orElseThrow(() -> new EntityNotFoundException("treino nao encontrado"));
-        if (treino.getUsuario()!=usuario) {
-            throw new AuthorizationException("");
+        if (treino.getEndTime()==null) {
+            treino.setEndTime(LocalTime.now(ZoneId.of("America/Sao_Paulo")));
+            treinoRepo.save(treino);
         }
-        treino.setEndTime(LocalTime.now(ZoneId.of("America/Sao_Paulo")));
-        treinoRepo.save(treino);
     }
 
     public void deletarTreino(String token, Long treinoId) throws JWTVerificationException,

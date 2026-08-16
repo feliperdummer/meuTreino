@@ -31,15 +31,15 @@ public class TreinoController {
         catch (EntityNotFoundException e) {
             return ResponseEntity.status(404).body(e.getMessage());
         }
-        return ResponseEntity.status(201).body(treino);
+        int status = treino.isExistente() ? 200 : 201;
+        return ResponseEntity.status(status).body(treino);
     }
 
-    @PatchMapping("/{treinoId}/finalizar")
-    public ResponseEntity<?> finalizarTreino(@RequestHeader("Authorization") String jwtToken,
-                                             @PathVariable Long treinoId)
+    @PatchMapping("/finalizar")
+    public ResponseEntity<?> finalizarTreino(@RequestHeader("Authorization") String jwtToken)
     {
         try {
-            treinoService.finalizarTreino(jwtToken, treinoId);
+            treinoService.finalizarTreino(jwtToken);
         }
         catch (JWTVerificationException jve) {
             return ResponseEntity.status(401).build();
@@ -72,7 +72,7 @@ public class TreinoController {
         return ResponseEntity.ok().build();
     }
 
-    @GetMapping("/listar/{userId}")
+    @GetMapping("/listar")
     public ResponseEntity<?> listar(@RequestHeader("Authorization") String jwtToken,
                                                   @RequestParam(value="data", required=false) LocalDate data)
     {

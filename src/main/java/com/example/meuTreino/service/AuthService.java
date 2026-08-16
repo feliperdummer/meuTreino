@@ -33,7 +33,7 @@ public class AuthService {
                                                            JWTCreationException
     {
         if (!userRepo.existsByEmail(email)) {
-            throw new EntityNotFoundException("usuario nao encontrado");
+            throw new EntityNotFoundException("email e/ou senha incorretos");
         }
         UsernamePasswordAuthenticationToken userPassAuthToken =
                 new UsernamePasswordAuthenticationToken(email, senha);
@@ -59,7 +59,7 @@ public class AuthService {
             throw new InvalidFieldException("campo(s) invalidos");
         }
         if (userRepo.existsByEmail(usuario.getEmail())) {
-            throw new ExistingUserException("ja existe uma conta com este email");
+            throw new ExistingUserException("email ja cadastrado");
         }
         usuario.setSenha(
                 securityConfiguration.
@@ -98,6 +98,6 @@ public class AuthService {
     * */
     private boolean senhaIsInvalid(String senha) {
         return senha==null || senha.isBlank() ||
-                !senha.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,}$");
+                !senha.matches("^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[$*&@#])[0-9a-zA-Z$*&@#]{8,24}$");
     }
 }

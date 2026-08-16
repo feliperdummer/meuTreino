@@ -12,6 +12,11 @@ public class TreinoDTO {
     private LocalTime startTime;
     private LocalTime endTime;
 
+    // caso o treino ja existe e nao tenha sido finalizado,
+    // o front lida com esse caso na hora que recebe o resultado
+    // da requisicao
+    private boolean existente;
+
     public TreinoDTO() {}
 
     public TreinoDTO(Treino treino) {
@@ -20,6 +25,7 @@ public class TreinoDTO {
         this.data = treino.getData();
         this.startTime = treino.getStartTime();
         this.endTime = treino.getEndTime();
+        existente = false;
     }
 
     public Long getTreinoId() {
@@ -46,19 +52,27 @@ public class TreinoDTO {
         this.data = data;
     }
 
-    public LocalTime getStartTim() {
+    public LocalTime getStartTime() {
         return startTime;
     }
 
-    public void setStart(LocalTime start) {
+    public void setStartTime(LocalTime start) {
         this.startTime = start;
     }
 
-    public LocalTime getEnd() {
+    public LocalTime getEndTime() {
         return endTime;
     }
 
-    public void setEnd(LocalTime end) {
+    public void setEndTime(LocalTime end) {
         this.endTime = end;
+    }
+
+    public boolean isExistente() {
+        return existente;
+    }
+
+    public void setExistente(boolean existente) {
+        this.existente = existente;
     }
 }
